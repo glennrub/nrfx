@@ -183,6 +183,20 @@ typedef enum
 __STATIC_INLINE bool nrfx_is_in_ram(void const * p_object);
 
 /**
+ * @brief Function for checking if an object is placed in the Data RAM region
+          or is defined to be NULL.
+ *
+ * Similar to nrfx_is_in_ram, but also check returns true if the object
+ * is defined to be NULL.
+ *
+ * @param[in] p_object  Pointer to an object whose location is to be checked.
+ *
+ * @retval true  If the pointed object is located in the Data RAM region or defined to be NULL.
+ * @retval false Otherwise.
+ */
+__STATIC_INLINE bool nrfx_is_in_ram_or_null(void const * p_object);
+
+/**
  * @brief Function for getting the interrupt number for a specific peripheral.
  *
  * @param[in] p_reg  Peripheral base pointer.
@@ -229,6 +243,11 @@ __STATIC_INLINE uint32_t nrfx_event_to_bitpos(uint32_t event);
 __STATIC_INLINE bool nrfx_is_in_ram(void const * p_object)
 {
     return ((((uint32_t)p_object) & 0xE0000000u) == 0x20000000u);
+}
+
+__STATIC_INLINE bool nrfx_is_in_ram_or_null(void const * p_object)
+{
+    return nrfx_is_in_ram(p_object) || (p_object == NULL);
 }
 
 __STATIC_INLINE IRQn_Type nrfx_get_irq_number(void const * p_reg)
