@@ -44,15 +44,28 @@ static inline void wait_for_flash_ready(void)
 void nrf_nvmc_page_erase(uint32_t address)
 {
     // Enable erase.
+    #if defined(NRF_TRUSTZONE_NONSECURE)
+    NRF_NVMC->CONFIGNS = NVMC_CONFIG_WEN_Een;
+    #else
     NRF_NVMC->CONFIG = NVMC_CONFIG_WEN_Een;
+    #endif
     __ISB();
     __DSB();
 
     // Erase the page
+    #if defined(NRF91_SERIES)
+    uint32_t * p_address = (uint32_t *)address;
+    *p_address = 0xFFFFFFFF;
+    #else
     NRF_NVMC->ERASEPAGE = address;
+    #endif
     wait_for_flash_ready();
 
+    #if defined(NRF_TRUSTZONE_NONSECURE)
+    NRF_NVMC->CONFIGNS = NVMC_CONFIG_WEN_Ren;
+    #else
     NRF_NVMC->CONFIG = NVMC_CONFIG_WEN_Ren;
+    #endif
     __ISB();
     __DSB();
 }
@@ -66,14 +79,22 @@ void nrf_nvmc_write_byte(uint32_t address, uint8_t value)
     value32 = value32 + ((uint32_t)value << (byte_shift << 3));
 
     // Enable write.
+    #if defined(NRF_TRUSTZONE_NONSECURE)
+    NRF_NVMC->CONFIGNS = (NVMC_CONFIG_WEN_Wen << NVMC_CONFIG_WEN_Pos);
+    #else
     NRF_NVMC->CONFIG = (NVMC_CONFIG_WEN_Wen << NVMC_CONFIG_WEN_Pos);
+    #endif
     __ISB();
     __DSB();
 
     *(uint32_t*)address32 = value32;
     wait_for_flash_ready();
 
+    #if defined(NRF_TRUSTZONE_NONSECURE)
+    NRF_NVMC->CONFIGNS = (NVMC_CONFIG_WEN_Ren << NVMC_CONFIG_WEN_Pos);
+    #else
     NRF_NVMC->CONFIG = (NVMC_CONFIG_WEN_Ren << NVMC_CONFIG_WEN_Pos);
+    #endif
     __ISB();
     __DSB();
 }
@@ -81,14 +102,22 @@ void nrf_nvmc_write_byte(uint32_t address, uint8_t value)
 void nrf_nvmc_write_word(uint32_t address, uint32_t value)
 {
     // Enable write.
-    NRF_NVMC->CONFIG = NVMC_CONFIG_WEN_Wen;
+    #if defined(NRF_TRUSTZONE_NONSECURE)
+    NRF_NVMC->CONFIGNS = (NVMC_CONFIG_WEN_Wen << NVMC_CONFIG_WEN_Pos);
+    #else
+    NRF_NVMC->CONFIG = (NVMC_CONFIG_WEN_Wen << NVMC_CONFIG_WEN_Pos);
+    #endif
     __ISB();
     __DSB();
 
     *(uint32_t*)address = value;
     wait_for_flash_ready();
 
-    NRF_NVMC->CONFIG = NVMC_CONFIG_WEN_Ren;
+    #if defined(NRF_TRUSTZONE_NONSECURE)
+    NRF_NVMC->CONFIGNS = (NVMC_CONFIG_WEN_Ren << NVMC_CONFIG_WEN_Pos);
+    #else
+    NRF_NVMC->CONFIG = (NVMC_CONFIG_WEN_Ren << NVMC_CONFIG_WEN_Pos);
+    #endif
     __ISB();
     __DSB();
 }
@@ -107,7 +136,11 @@ void nrf_nvmc_write_words(uint32_t address, const uint32_t * src, uint32_t num_w
     uint32_t i;
 
     // Enable write.
-    NRF_NVMC->CONFIG = NVMC_CONFIG_WEN_Wen;
+    #if defined(NRF_TRUSTZONE_NONSECURE)
+    NRF_NVMC->CONFIGNS = (NVMC_CONFIG_WEN_Wen << NVMC_CONFIG_WEN_Pos);
+    #else
+    NRF_NVMC->CONFIG = (NVMC_CONFIG_WEN_Wen << NVMC_CONFIG_WEN_Pos);
+    #endif
     __ISB();
     __DSB();
 
@@ -117,7 +150,11 @@ void nrf_nvmc_write_words(uint32_t address, const uint32_t * src, uint32_t num_w
         wait_for_flash_ready();
     }
 
-    NRF_NVMC->CONFIG = NVMC_CONFIG_WEN_Ren;
+    #if defined(NRF_TRUSTZONE_NONSECURE)
+    NRF_NVMC->CONFIGNS = (NVMC_CONFIG_WEN_Ren << NVMC_CONFIG_WEN_Pos);
+    #else
+    NRF_NVMC->CONFIG = (NVMC_CONFIG_WEN_Ren << NVMC_CONFIG_WEN_Pos);
+    #endif
     __ISB();
     __DSB();
 }

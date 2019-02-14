@@ -143,7 +143,11 @@ void SystemInit(void)
       __DSB();
       __ISB();
     #endif
-    
+
+    #if defined(NRF_TRUSTZONE_NONSECURE)
+      *(uint32_t *)0x40005c04 = 0x02ul;
+    #endif
+
     SystemCoreClockUpdate();
 }
 
